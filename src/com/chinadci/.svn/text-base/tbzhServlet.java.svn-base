@@ -1,0 +1,241 @@
+package com.chinadci;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import oracle.jdbc.OracleTypes;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
+public class tbzhServlet extends HttpServlet{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	
+	/**
+	 * Constructor of the object.
+	 */
+	public tbzhServlet() {
+		super();
+	}
+
+	/**
+	 * Destruction of the servlet. <br>
+	 */
+	public void destroy() {
+		super.destroy(); // Just puts "destroy" string in log
+		// Put your code here
+	}
+	/**
+	 * The doGet method of the servlet. <br>
+	 *
+	 * This method is called when a form has its tag value method equals to get.
+	 * 
+	 * @param request the request send by the client to the server
+	 * @param response the response send by the server to the client
+	 * @throws ServletException if an error occurred
+	 * @throws IOException if an error occurred
+	 */
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+	}
+
+	/**
+	 * The doPost method of the servlet. <br>
+	 *
+	 * This method is called when a form has its tag value method equals to post.
+	 * 
+	 * @param request the request send by the client to the server
+	 * @param response the response send by the server to the client
+	 * @throws ServletException if an error occurred
+	 * @throws IOException if an error occurred
+	 */
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("text/html;charset=utf-8");
+		response.setCharacterEncoding("utf-8");
+		 request.setCharacterEncoding("utf-8");
+		Connection con =null; 
+        Statement psmt = null;
+        ResultSet rs = null; 
+        PrintWriter out = response.getWriter();
+	   String tbzh=request.getParameter("tbzh");
+	   
+	   tbzh = changeToWord(tbzh);
+//	   tbzh="Î÷ÓÒ"+tbzh.substring(2);
+	   JSONObject json= new JSONObject();
+	   boolean succ=false;
+	   CallableStatement cstmt = null;
+       ResultSet rs1 = null;
+       DatabaseMetaData dbmd = null;
+       ResultSet remarkResultSet = null;
+       ResultSetMetaData metaData = null;
+
+	try {
+
+		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();  
+		con = DriverManager.getConnection(ConfigManager.getInstance().getString("jdbcs"),ConfigManager.getInstance().getString("user"),ConfigManager.getInstance().getString("password"));
+		 psmt =con.createStatement();
+
+		 String sql="select id from tab_df_hdmb where tbzh='"+tbzh+"'";
+		 rs=psmt.executeQuery(sql);
+		  JSONArray jsonArr = new JSONArray(); 
+
+		if(rs.next())
+		{ 
+			int ii=rs.getInt("id");
+			String sqll="select daxs,dajg,jcclxs from tab_df_hdmtxb where p_id="+ii;
+			psmt=con.createStatement();
+			ResultSet rss=psmt.executeQuery(sqll);
+			if(rss.next())
+			{
+				succ=true;
+
+				 String daxs=rss.getNString("daxs");
+				 String dajg=rss.getNString("dajg");
+				 String jcclxs=rss.getNString("jcclxs");
+				 String procName = "HDM(?,?,?,?,?)";
+			     String query = "call " + procName; 
+			     
+	                
+	                cstmt = con.prepareCall(query);
+	                cstmt.registerOutParameter(1, OracleTypes.CURSOR);
+	                cstmt.setString(2, daxs);
+	                cstmt.setString(3, dajg);
+	                cstmt.setString(4, jcclxs);
+	                cstmt.setInt(5, ii);
+	                cstmt.execute();
+
+	                rs1 = (ResultSet) cstmt.getObject(1);
+	                metaData = rs1.getMetaData();
+	                int columnCount = metaData.getColumnCount();
+	                JSONObject jsonObj = new JSONObject(); 
+	                Object fieldValue = null;
+	                String columnName = null;
+	                if(rs1.next())
+	                {
+	                	for (int i = 1; i <= columnCount; i++) {
+	                       String  column = metaData.getColumnName(i);
+	                       String cumsql="select COMMENTS from user_col_comments where TABLE_NAME='TAB_DF_HDMTXB' and COLUMN_NAME='"+column+"'";
+	                       Statement tt=con.createStatement();
+	                       
+	                       remarkResultSet = tt.executeQuery(cumsql);
+	                        if (remarkResultSet.next()) {
+	                        	columnName = remarkResultSet.getString("COMMENTS");
+	                        }
+	                        fieldValue = getFieldValue(rs1, i);
+	                       if(fieldValue==null)
+	                       {
+	                    	   fieldValue="  ";
+	                       }
+	                        jsonObj.put(columnName, fieldValue);
+	                        tt.close();
+	                    }
+	                }
+	                jsonArr.add(jsonObj); 
+			}
+			rss.close();
+		}
+		json.put("values", jsonArr);
+
+			out.println(json.toJSONString());
+			out.flush();
+			out.close();
+		
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		out.println(e.toString());
+	} catch (InstantiationException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IllegalAccessException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} finally
+	{
+		try {
+			psmt.close();
+			con.close();
+			rs.close();
+			remarkResultSet.close();
+			rs1.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	}
+	public static String changeToWord(String str) {
+		String retData = null;
+		String tempStr = new String(str);
+		String[] chStr = new String[str.length()/4];
+		for(int i=0;i<str.length();i++){
+		if(i%4==3){
+		chStr[i/4] = new String(tempStr.substring(0, 4));
+		tempStr = tempStr.substring(4, tempStr.length());
+		}
+		}
+		char[] retChar = new char[chStr.length];
+		for(int i=0;i<chStr.length;i++){
+		retChar[i] = (char) Integer.parseInt(chStr[i], 16);
+		}
+		retData = String.valueOf(retChar, 0, retChar.length);
+		return retData;
+		}
+
+	 private Object getFieldValue(ResultSet rs, int columnIndex) throws SQLException {
+	        int columnType = rs.getMetaData().getColumnType(columnIndex);
+	        Object fieldValue = null;
+	        switch (columnType) {
+	            case OracleTypes.INTEGER:
+	            case OracleTypes.NUMBER:
+	                fieldValue = rs.getInt(columnIndex);
+	                break;
+	            case OracleTypes.CHAR:
+	                fieldValue = rs.getString(columnIndex);
+	                break;
+	            case OracleTypes.DATE:
+	                fieldValue = rs.getDate(columnIndex);
+	                break;
+	            default:
+	                fieldValue = rs.getString(columnIndex);
+	        }
+	        return fieldValue;
+	    }
+	/**
+	 * Initialization of the servlet. <br>
+	 *
+	 * @throws ServletException if an error occurs
+	 */
+	public void init() throws ServletException {
+		// Put your code here
+	}
+}

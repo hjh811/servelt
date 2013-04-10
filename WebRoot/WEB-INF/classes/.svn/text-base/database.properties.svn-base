@@ -1,0 +1,6 @@
+jdbcs=jdbc\:oracle\:thin\:@192.168.1.200\:1521\:orcl
+# project target
+#Wed Oct 03 17:23:01 CST 2012
+target=android-8
+user=gzzb
+password=gzzb

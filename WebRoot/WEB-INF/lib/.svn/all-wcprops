@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/androidzj/!svn/ver/1/WebRoot/WEB-INF/lib
+END
+catalina-manager.jar
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/androidzj/!svn/ver/1/WebRoot/WEB-INF/lib/catalina-manager.jar
+END
+ojdbc6-11.1.0.7.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/androidzj/!svn/ver/1/WebRoot/WEB-INF/lib/ojdbc6-11.1.0.7.0.jar
+END
+fastjson-1.1.24.jar
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/androidzj/!svn/ver/3/WebRoot/WEB-INF/lib/fastjson-1.1.24.jar
+END
+commons-fileupload-1.2.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/androidzj/!svn/ver/1/WebRoot/WEB-INF/lib/commons-fileupload-1.2.2.jar
+END
+commons-io-2.4.jar
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/androidzj/!svn/ver/1/WebRoot/WEB-INF/lib/commons-io-2.4.jar
+END

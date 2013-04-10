@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/androidzj/!svn/ver/2/src/com/chinadci
+END
+ConfigManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/androidzj/!svn/ver/1/src/com/chinadci/ConfigManager.java
+END
+JSWZServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/androidzj/!svn/ver/3/src/com/chinadci/JSWZServlet.java
+END
+TestServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/androidzj/!svn/ver/1/src/com/chinadci/TestServlet.java
+END
+LogServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/androidzj/!svn/ver/3/src/com/chinadci/LogServlet.java
+END
+DFBGServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/androidzj/!svn/ver/3/src/com/chinadci/DFBGServlet.java
+END
+tbzhServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/androidzj/!svn/ver/3/src/com/chinadci/tbzhServlet.java
+END
